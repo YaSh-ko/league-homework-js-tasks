@@ -2,24 +2,24 @@
 
 //Обертка для каррирования
 function curry(func) {
-  let argsArray = [];
 
   //Функция, накапливающая результаты
-  function curried(...args) {
-    argsArray.push(...args);
+  function createCurried(prevArgs = []) {
+    function curried(...newArgs) {
+
+      if(newArgs.length === 0 ) return func(...prevArgs);
+
+      const argsArray = [...prevArgs, ...newArgs];
+      return createCurried(argsArray);
+    }
+
+    curried.toString = () => func(...prevArgs);
+    curried.valueOf = () => func(...prevArgs);
+
     return curried;
   }
 
-  //Переопределение методов
-  curried.valueOf = curried.toString = function() {
-    const result = func.apply(this, argsArray);
-
-    //Обнуляем значение массива аргументов, чтобы каждый вызов был независиимым
-    argsArray.length = 0;
-    return result;
-  }
-
-  return curried;
+  return createCurried();
 }
 
 //Функция сложения
@@ -34,26 +34,18 @@ function multiply(...args) {
 
 //Тесты
 const funcSum = curry(sum);
-const funcMultiply = curry(multiply);
+console.log(+funcSum(1)(2));
 
-console.log("ЗАДАЧА 1");
-
-//Математическая операция
-console.log("Сумма (1 + 2 + 3 + 4) = ", funcSum(1)(2)(3)(4) + 0) // 1 + 2 + 3 + 4 = 10
-console.log("Умножение (1 * 2 * 3) = ", funcMultiply(1)(2)(3) + 0) // 1 * 2 * 3 = 6
-console.log();
-
-//Вывод
-console.log(`Сумма (1 + 3 + 2 + 3 + 6 + 6) = ${funcSum(1)(3)(2)(4)(6)(6)}`) // 1 + 3 + 2 + 4 + 6 + 6 = 22
-console.log(`Умножение (2 * 10) = ${funcMultiply(2)(10)}`) // 2* 10 = 20
-console.log();
 
 
 //ЗАДАЧА 2
 
 //Функция для создания объекта из всей строки
 function createObjFromStr(str) {
-  const wordsArray = str.split('.');
+
+  if(str.trim().length === 0) return {};
+
+  const wordsArray = str.trim().split('.');
 
   //Функция для создания объекта из одного слова
   function createObj(index) {
@@ -75,7 +67,7 @@ function createObjFromStr(str) {
 }
 
 // Тесты
-const str = "one.two.three.four.five";
+const str = "one.two";
 
 console.log("ЗАДАЧА 2");
 
